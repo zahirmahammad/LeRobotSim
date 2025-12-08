@@ -45,12 +45,34 @@ scene.build()
 # cam.start_recording()
 import numpy as np
 
-# for i in range(120):
-while True:
+joint_names = ['shoulder_pan', 'shoulder_lift', 'elbow_flex', 'wrist_flex', 'wrist_roll', 'gripper']
+
+dofs_idx = [lerobot.get_joint(name).dof_idx_local for name in joint_names]
+
+print(f"DOF indices: {dofs_idx}")
+
+# # set positional gains
+# lerobot.set_dofs_kp(
+#     kp             = np.array([4500, 4500, 3500, 3500, 2000, 2000]),
+#     dofs_idx_local = dofs_idx,
+# )
+# # set velocity gains
+# lerobot.set_dofs_kv(
+#     kv             = np.array([450, 450, 350, 350, 200, 200]),
+#     dofs_idx_local = dofs_idx,
+# )
+
+def move_to_position(position):
+    lerobot.control_dofs_position(
+        position,
+        dofs_idx,
+    )
     scene.step()
-    # cam.set_pose(
-    #     pos    = (3.0 * np.sin(i / 60), 3.0 * np.cos(i / 60), 2.5),
-    #     lookat = (0, 0, 0.5),
-    # )
-    cam.render()
-# cam.stop_recording(save_to_filename='video.mp4', fps=60)
+
+
+while True:
+    # Hard reset
+    # lerobot.set_dofs_position(np.array([1.57, 0, 0, 0, 0, 0]), dofs_idx)
+
+    move_to_position(np.array([1.57, -1.57, 0.0, 0.0, 0.0, 0.0]))
+    scene.step()
