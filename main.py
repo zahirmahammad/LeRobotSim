@@ -63,16 +63,29 @@ print(f"DOF indices: {dofs_idx}")
 # )
 
 def move_to_position(position):
-    lerobot.control_dofs_position(
-        position,
-        dofs_idx,
-    )
-    scene.step()
+    error = 1.0
+    while error > 0.01:
+        curr_pos = lerobot.get_dofs_position(dofs_idx).cpu().numpy()
+        error =np.max(np.abs(position - curr_pos))
+        print(f"Moving... Current Pos : {curr_pos}, Target Pos : {position}, Error: {error}")
+        lerobot.control_dofs_position(
+            position,
+            dofs_idx,
+        )
+        scene.step()
+    # curr_pos = lerobot.get_dofs_position(dofs_idx)
+    # print(f"Current Pos : {curr_pos}")
+    # print(f"Target  Pos : {position}")
+
+trajectory = [
+    np.array([0.787, 0.0, 0.0, 0.0, 0.0, 0.0]),
+    np.array([1.57, 0.0, 0.0, 0.0, 0.0, 0.0]),
+    np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+    # np.array([1.57, 0.0, 0.0, 0.0, 0.0, 0.0]),
+]
 
 
 while True:
-    # Hard reset
-    # lerobot.set_dofs_position(np.array([1.57, 0, 0, 0, 0, 0]), dofs_idx)
-
-    move_to_position(np.array([1.57, -1.57, 0.0, 0.0, 0.0, 0.0]))
+    for position in trajectory:
+        move_to_position(position)
     scene.step()
